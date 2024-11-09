@@ -6,4 +6,5 @@ export interface ModalProps {
   title: string;
   children: ReactNode;
   onConfirm: () => void;
+  width?: string;
 }

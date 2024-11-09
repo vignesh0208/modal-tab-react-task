@@ -10,8 +10,8 @@
   border-right: 1px solid rgba(42, 42, 42, 0.08);
 }
 
-.sidebar.closed {
-  transform: translateX(-100%);
+.sidebar.open {
+  flex: 0 0 180px;
 }
 
 .sidebar-toggle {

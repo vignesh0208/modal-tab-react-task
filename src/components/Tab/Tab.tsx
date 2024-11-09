@@ -1,16 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { TabProps } from './Tab.types';
+import { TableProps } from '../Table/Table.types';
+import Table from '../Table/Table';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import './Tab.css';
 
 const tabs = [
-  { id: 1, label: 'Tab 1', endpoint: '/api/content1' },
-  { id: 2, label: 'Tab 2', endpoint: '/api/content2' },
-  { id: 3, label: 'Tab 3', endpoint: '/api/content3' },
+  {
+    id: 1,
+    label: 'Todos',
+    endpoint: 'https://jsonplaceholder.typicode.com/todos',
+  },
+  {
+    id: 2,
+    label: 'Post',
+    endpoint: 'https://jsonplaceholder.typicode.com/posts',
+  },
+  { id: 3, label: 'Loader', endpoint: '' },
 ];
 
 const Tab: React.FC = () => {
+  const [columns, setColumns] = useState<TableProps<any>['columns']>([]);
   const [activeTab, setActiveTab] = useState<number>(tabs[0].id);
-  const [content, setContent] = useState<TabProps | null>(null);
+  const [content, setContent] = useState<TabProps[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,6 +31,18 @@ const Tab: React.FC = () => {
       setLoading(true);
       setError(null);
       setContent(null);
+      if (activeTab === 1) {
+        setColumns([
+          { header: 'ID', accessor: 'id' },
+          { header: 'Title', accessor: 'title' },
+        ]);
+      } else if (activeTab === 2) {
+        setColumns([
+          { header: 'ID', accessor: 'id' },
+          { header: 'Title', accessor: 'title' },
+          { header: 'Body', accessor: 'body' },
+        ]);
+      }
 
       try {
         const response = await fetch(
@@ -27,7 +51,7 @@ const Tab: React.FC = () => {
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
-        const data: TabProps = await response.json();
+        const data: TabProps[] = await response.json();
         setContent(data);
       } catch (err) {
         setError((err as Error).message);
@@ -36,33 +60,39 @@ const Tab: React.FC = () => {
       }
     };
 
+    if (activeTab === 3) {
+      setLoading(true);
+      return;
+    }
     fetchContent();
   }, [activeTab]);
 
   return (
-    <div className='tabbed-interface'>
+    <>
       <div className='tabs'>
         {tabs.map((tab) => (
-          <button
+          <div
             key={tab.id}
             className={`tab ${activeTab === tab.id ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.id)}>
             {tab.label}
-          </button>
+          </div>
         ))}
       </div>
 
-      <div className='content'>
-        {loading && <p>Loading...</p>}
+      <div className='tab-container'>
+        {loading && <LoadingSpinner />}
         {error && <p className='error'>{error}</p>}
         {content && (
-          <div>
-            <h2>{content.title}</h2>
-            <p>{content.body}</p>
+          <div className='tab-content'>
+            <Table
+              data={content || null}
+              columns={columns}
+            />
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

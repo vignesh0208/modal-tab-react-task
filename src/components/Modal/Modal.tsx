@@ -9,6 +9,7 @@ const Modal: FC<ModalProps> = ({
   title,
   children,
   onConfirm,
+  width = '400px',
 }) => {
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -34,6 +35,7 @@ const Modal: FC<ModalProps> = ({
       onClick={handleOverlayClick}>
       <div
         className='modal-content'
+        style={{ width }}
         role='dialog'
         aria-modal='true'
         aria-labelledby='modal-title'>
